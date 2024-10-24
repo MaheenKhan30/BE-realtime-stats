@@ -27,7 +27,7 @@ export class WebsocketGateway implements OnModuleInit {
       
       setInterval(()=>{
         client.emit('avgPriceUpdate', this.binanceService.latestData)
-      }, 300000)
+      }, 3000)
     });
   }
   
