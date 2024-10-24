@@ -1,13 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import {  Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { exchangeRates } from 'src/utils/constants';
 import formatTimestamp from 'src/utils/formatTimestamp';
-import { WebsocketService } from 'src/websockets-client/websocket-client.service';
+import { exchangeRates } from 'src/utils/constants';
+import { WebsocketService } from 'src/websockets/websocket.service';
 
 @Injectable()
 export class BinanceService {
   private wsUrl: string;
   private exchangeRates: Record<string, number>;
+  public latestData: any
   constructor(
     private websocketService: WebsocketService,
     private configService: ConfigService,
@@ -16,10 +17,12 @@ export class BinanceService {
     this.exchangeRates = exchangeRates
     this.connectToAvgPriceStream('BTCUSDT');
   }
+
   connectToAvgPriceStream(symbol: string) {
     const streamName = `${symbol}@avgPrice`;
     const fullWsUrl = `${this.wsUrl}/${streamName}`;
-    this.websocketService.establishConnection(
+
+    return this.websocketService.establishConnection(
       fullWsUrl,
       (data) => {
         this.handleAvgPriceMessage(data);
@@ -27,6 +30,7 @@ export class BinanceService {
       () => this.subscribeToAvgPriceStream(),
     );
   }
+
   private subscribeToAvgPriceStream() {
     const subscriptionMessage = {
       method: 'SUBSCRIBE',
@@ -35,6 +39,7 @@ export class BinanceService {
     };
     this.websocketService.sendMessage(subscriptionMessage);
   }
+
   private handleAvgPriceMessage(data: any) {
     if (data.e === 'avgPrice') {
       const priceDetails : any= {
@@ -48,16 +53,20 @@ export class BinanceService {
       priceDetails.avgPriceEUR = convertedPrices.EUR;
       priceDetails.avgPricePKR = convertedPrices.PKR;
       console.log('Received average price data:', priceDetails);
+    this.latestData = priceDetails
     } else {
       console.log('Unknown avg price event received:', data);
     }
   }
+
   convertCurrencies(baseValue: number): Record<string, number> {
     const conversions: Record<string, number> = {};
+
     for (const [currency, rate] of Object.entries(this.exchangeRates)) {
         conversions[currency] = baseValue * rate;
       
     }
+
     return conversions;
   }
 }

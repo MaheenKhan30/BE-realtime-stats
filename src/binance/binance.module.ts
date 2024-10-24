@@ -1,9 +1,10 @@
-import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
+import { forwardRef, Module } from "@nestjs/common";
 import { BinanceService } from "./binance.service";
-import { WebSocketModule } from "src/websockets-client/websocket.module";
+import { ConfigModule } from "@nestjs/config";
+import { WebSocketModule } from "src/websockets/websocket.module";
+
 @Module({
-    imports:[ConfigModule, WebSocketModule],
+    imports:[ConfigModule, forwardRef(() => WebSocketModule)],
     providers:[BinanceService],
     exports:[BinanceService]
 })
