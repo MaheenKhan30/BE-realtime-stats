@@ -6,5 +6,6 @@ export default function formatTimestamp(timestamp: number): string {
     const hours = date.getHours();
     const minutes = date.getMinutes();
     const seconds = date.getSeconds();
+  
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
   }

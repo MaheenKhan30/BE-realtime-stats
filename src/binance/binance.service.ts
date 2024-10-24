@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { WebsocketService } from 'src/websockets/websocket.service';
 import { ConfigService } from '@nestjs/config';
+
+import { AveragePriceDetailsDto } from './dto/AveragePriceDetails.dto';
+import { AveragePriceEventMessageDto } from './dto/AveragePriceEventMessage.dto';
+
+import { WebsocketService } from 'src/websockets/websocket.service';
+
 import formatTimestamp from 'src/utils/formatTimestamp';
 import { exchangeRates } from 'src/utils/constants';
 
@@ -8,7 +13,7 @@ import { exchangeRates } from 'src/utils/constants';
 export class BinanceService {
   private wsUrl: string;
   private exchangeRates: Record<string, number>;
-  public latestData: any;
+  public latestData: AveragePriceDetailsDto;
   constructor(
     private websocketService: WebsocketService,
     private configService: ConfigService,
@@ -40,9 +45,9 @@ export class BinanceService {
     this.websocketService.sendMessage(subscriptionMessage);
   }
 
-  private handleAvgPriceMessage(data: any) {
+  private handleAvgPriceMessage(data: AveragePriceEventMessageDto) {
     if (data.e === 'avgPrice') {
-      const priceDetails: any = {
+      const priceDetails: AveragePriceDetailsDto = {
         eventType: data.e,
         symbol: data.s,
         avgPriceInterval: data.i,
