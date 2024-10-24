@@ -1,20 +1,20 @@
-import {  Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { WebsocketService } from 'src/websockets/websocket.service';
 import { ConfigService } from '@nestjs/config';
 import formatTimestamp from 'src/utils/formatTimestamp';
 import { exchangeRates } from 'src/utils/constants';
-import { WebsocketService } from 'src/websockets/websocket.service';
 
 @Injectable()
 export class BinanceService {
   private wsUrl: string;
   private exchangeRates: Record<string, number>;
-  public latestData: any
+  public latestData: any;
   constructor(
     private websocketService: WebsocketService,
     private configService: ConfigService,
   ) {
     this.wsUrl = this.configService.get<string>('BINANCE_WS_URL');
-    this.exchangeRates = exchangeRates
+    this.exchangeRates = exchangeRates;
     this.connectToAvgPriceStream('BTCUSDT');
   }
 
@@ -42,18 +42,19 @@ export class BinanceService {
 
   private handleAvgPriceMessage(data: any) {
     if (data.e === 'avgPrice') {
-      const priceDetails : any= {
+      const priceDetails: any = {
         eventType: data.e,
         symbol: data.s,
         avgPriceInterval: data.i,
         avgPriceUSD: Number(data.w),
         lastTradeTime: formatTimestamp(data.T),
+        eventTime: formatTimestamp(data.E),
       };
       const convertedPrices = this.convertCurrencies(priceDetails.avgPriceUSD);
       priceDetails.avgPriceEUR = convertedPrices.EUR;
       priceDetails.avgPricePKR = convertedPrices.PKR;
-      console.log('Received average price data:', priceDetails);
-    this.latestData = priceDetails
+      // console.log('Received average price data:', priceDetails);
+      this.latestData = priceDetails;
     } else {
       console.log('Unknown avg price event received:', data);
     }
@@ -63,8 +64,7 @@ export class BinanceService {
     const conversions: Record<string, number> = {};
 
     for (const [currency, rate] of Object.entries(this.exchangeRates)) {
-        conversions[currency] = baseValue * rate;
-      
+      conversions[currency] = baseValue * rate;
     }
 
     return conversions;
