@@ -58,7 +58,6 @@ export class BinanceService {
       const convertedPrices = this.convertCurrencies(priceDetails.avgPriceUSD);
       priceDetails.avgPriceEUR = convertedPrices.EUR;
       priceDetails.avgPricePKR = convertedPrices.PKR;
-      // console.log('Received average price data:', priceDetails);
       this.latestData = priceDetails;
     } else {
       console.log('Unknown avg price event received:', data);

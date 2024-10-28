@@ -19,7 +19,7 @@ This backend service is built using NestJS. It establishes a WebSocket (ws) conn
 2. Copy the environment variables from `.env.example` and save them in a `.env` file.
 3. Install the dependencies:
     ```bash
-    npm install --legacy-peer-deps
+    npm install
     ```
 4. Start the development server:
     ```bash
